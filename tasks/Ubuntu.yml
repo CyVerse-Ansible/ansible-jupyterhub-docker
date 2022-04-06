@@ -1,0 +1,25 @@
+---
+# This is Ubuntu specific tasks
+
+## TODO: fix logic how ubuntu major version packages logic
+
+- name: Install Ubuntu package dependencies for Ubuntu
+  apt:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+  with_items:
+    - npm
+    - nodejs
+    - node-gyp
+    - python3-pip
+    - python3-virtualenv
+    - python3-dev
+    - libtool
+    - libpcre3
+    - libpcre3-dev
+    - libssl-dev
+    # - apache2
+    # - apache2-dev
+    # - apache2-utils
+    # - libapache2-mod-auth-cas
