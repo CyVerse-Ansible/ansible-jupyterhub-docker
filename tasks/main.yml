@@ -47,13 +47,16 @@
 # This is to initialize docker
 ###
 
-- name: docker pull the jupyterhub image
-  command: "docker pull {{ jupyterhub_docker_image }}:{{ jupyterhub_docker_tag }}"
-# note: this did not work reliably given this error: https://github.com/ansible/ansible/issues/20492
-#  docker:
-#    image: "{{ jupyterhub_docker_image }}"
-#    state: present
-#    pull: missing
+- name: DOCKER_IMAGE; docker pull the jupyterhub image
+  community.docker.docker_image:
+    name: "{{ jupyterhub_docker_image }}:{{ jupyterhub_docker_tag }}"
+    source: pull
+
+- name: DOCKER_NETWORK; create the jupyterhub network if swarmspawner is enabled
+  community.docker.docker_network:
+    name: "{{ jupyterhub_swarmspawner_network }}"
+    driver: overlay
+  when: jupyterhub_enable_swarmspawner|bool
 
 ###
 # This is for jupyterhub configuration

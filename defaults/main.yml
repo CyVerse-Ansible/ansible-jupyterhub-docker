@@ -19,3 +19,9 @@ jupyterhub_docker_tag: "latest"
 # otherwise, admins can be specified as python set
 # jupyterhub_config_admin_users: "{'edwins','nirav'}"
 jupyterhub_config_admin_users: "set()"
+
+# default setting for dockerspawner
+jupyterhub_enable_swarmspawner: false
+
+# jupyterhub network
+jupyterhub_swarmspawner_network: "jupyterhub_network"

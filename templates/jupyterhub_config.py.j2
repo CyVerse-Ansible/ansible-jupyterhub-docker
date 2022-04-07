@@ -3,13 +3,20 @@ from oauthenticator.github import GitHubOAuthenticator
 # c.JupyterHub.authenticator_class = 'jhub_remote_user_authenticator.remote_user_auth.RemoteUserAuthenticator'
 c.JupyterHub.authenticator_class = GitHubOAuthenticator
 
+{% if jupyterhub_enable_swarmspawner is defined and jupyterhub_enable_swarmspawner %}
+c.JupyterHub.spawner_class = 'dockerspawner.SwarmSpawner'
+network_name = '{{ jupyterhub_swarmspawner_network }}'
+c.SwarmSpawner.network_name = '{{ jupyterhub_swarmspawner_network }}'
+c.SwarmSpawner.extra_host_config = {'network_mode': '{{ jupyterhub_swarmspawner_network }}' }
+{% else %}
+c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
+{% endif %}
 
 c.JupyterHub.extra_log_file = '{{ jupyterhub_log }}'
 c.JupyterHub.hub_ip = '{{ jupyterhub_dockerhost_ip }}'
 c.JupyterHub.ip = '0.0.0.0'
 c.JupyterHub.port = 80
 c.JupyterHub.proxy_api_ip = '{{ jupyterhub_dockerhost_ip }}'
-c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.Spawner.debug = True
 # c.Spawner.mem_limit = '2G'
 {% if jupyterhub_enable_lab is defined and jupyterhub_enable_lab %}

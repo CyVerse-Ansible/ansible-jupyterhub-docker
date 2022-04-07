@@ -10,6 +10,10 @@ Requirements
 
 This requires docker
 
+This role also assumes the community.docker collection is installed i.e. ansible-galaxy collection install community.docker
+
+If using swarmspawner, then docker and docker swarm should be setup beforehand
+
 Role Variables
 --------------
 
@@ -24,6 +28,7 @@ Role Variables
 * jupyterhub_oauth2_callback_url, callback url for this jupyterhub
 * jupyterhub_oauth2_client_id, oauth2 client id
 * jupyterhub_oauth2_client_secret, oauth2 client secret
+* jupyterhub_enable_swarmspawner, default is false
 
 Dependencies
 ------------
