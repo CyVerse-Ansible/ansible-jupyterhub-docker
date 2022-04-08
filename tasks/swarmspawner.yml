@@ -1,0 +1,19 @@
+---
+- name: SHELL; create a CONFIGPROXY_AUTH_TOKEN
+  shell: "echo 'CONFIGPROXY_AUTH_TOKEN='$(openssl rand -hex 32 ) > {{ jupyterhub_install_dir }}/envfile"
+  args:
+    executable: /bin/bash
+
+- name: TEMPLATE; docker-compose.yml file
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ jupyterhub_install_dir }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: 0644
+  
+- name: DOCKER_COMPOSE; bring up the jupyterhub
+  community.docker.docker_compose:
+    project_src: "{{ jupyterhub_install_dir }}"
+    build: no 
+    state: present

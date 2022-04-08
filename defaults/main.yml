@@ -1,5 +1,8 @@
 # defaults for jupyterhub
 
+# location of jupyterhub files (separate from config for dockerspawner)
+jupyterhub_install_dir: "/opt/jupyterhub"
+
 # location of jupyterhub config
 jupyterhub_system_config: "/etc/jupyterhub"
 
@@ -24,4 +27,4 @@ jupyterhub_config_admin_users: "set()"
 jupyterhub_enable_swarmspawner: false
 
 # jupyterhub network
-jupyterhub_swarmspawner_network: "jupyterhub_network"
+jupyterhub_swarmspawner_network: "jupyterhub-net"

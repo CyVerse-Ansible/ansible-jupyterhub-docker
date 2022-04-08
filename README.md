@@ -17,7 +17,8 @@ If using swarmspawner, then docker and docker swarm should be setup beforehand
 Role Variables
 --------------
 
-* jupyterhub_system_config, the directory containing the jupyter configuration (default: /etc/jupyterhub)
+* jupyterhub_install_dir, the primary jupyterhub install directory (default: /opt/jupyterhub)
+* jupyterhub_system_config, the directory containing the jupyter configuration for dockerspawner (default: /etc/jupyterhub)
 * jupyterhub_log, the path to the jupyterhub log file (default: /var/log/jupyterhub.log)
 * jupyterhub_dockerhost_ip, the default internal ip of the docker host (default: 172.17.0.1)
 * jupyterhub_docker_image, the default docker image to use for jupyter notebooks (default: jupyter/datascience-notebook)

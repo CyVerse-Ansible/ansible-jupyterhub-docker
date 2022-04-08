@@ -4,25 +4,39 @@ from oauthenticator.github import GitHubOAuthenticator
 c.JupyterHub.authenticator_class = GitHubOAuthenticator
 
 {% if jupyterhub_enable_swarmspawner is defined and jupyterhub_enable_swarmspawner %}
+# This is swarmspawner settings
+c.ConfigurableHTTPProxy.should_start = False
+c.ConfigurableHTTPProxy.api_url = 'http://proxy:8001'
+
 c.JupyterHub.spawner_class = 'dockerspawner.SwarmSpawner'
+c.SwarmSpawner.spawn_timeout = 60
 network_name = '{{ jupyterhub_swarmspawner_network }}'
 c.SwarmSpawner.network_name = '{{ jupyterhub_swarmspawner_network }}'
 c.SwarmSpawner.extra_host_config = {'network_mode': '{{ jupyterhub_swarmspawner_network }}' }
+
+c.JupyterHub.hub_ip = 'hub'
+c.DockerSpawner.hub_ip_connect = 'hub'
+c.JupyterHub.proxy_api_ip = 'proxy'
 {% else %}
+
+# This is dockerspawner settings
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
+c.JupyterHub.hub_ip = '{{ jupyterhub_dockerhost_ip }}'
+c.DockerSpawner.hub_ip_connect = '{{ jupyterhub_dockerhost_ip }}'
+c.JupyterHub.proxy_api_ip = '{{ jupyterhub_dockerhost_ip }}'
 {% endif %}
 
-c.JupyterHub.extra_log_file = '{{ jupyterhub_log }}'
-c.JupyterHub.hub_ip = '{{ jupyterhub_dockerhost_ip }}'
 c.JupyterHub.ip = '0.0.0.0'
 c.JupyterHub.port = 80
-c.JupyterHub.proxy_api_ip = '{{ jupyterhub_dockerhost_ip }}'
+
+c.JupyterHub.extra_log_file = '{{ jupyterhub_log }}'
 c.Spawner.debug = True
 # c.Spawner.mem_limit = '2G'
+
+
 {% if jupyterhub_enable_lab is defined and jupyterhub_enable_lab %}
 c.Spawner.environment = { 'JUPYTER_ENABLE_LAB': 'yes' }
 {% endif %}
-c.DockerSpawner.hub_ip_connect = '{{ jupyterhub_dockerhost_ip }}'
 c.DockerSpawner.image = '{{ jupyterhub_docker_image }}:{{ jupyterhub_docker_tag }}'
 
 # leave this in, jic the auth-specific class doesn't work e.g. github

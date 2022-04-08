@@ -6,46 +6,55 @@
   with_first_found:
     - "{{ ansible_distribution }}.yml"
 
-- name: INCLUDE; execute tasks specific tasks
-  include: "{{ ansible_distribution }}.yml"
-
-- name: NPM; install npm proxy
-  npm:
-    name: configurable-http-proxy
-    global: yes
-
-- name: PIP; upgrade pip3
-  pip:
-    name: pip
-    state: latest
-    executable: pip3
-
-# - name: install the REMOTE_USER authenticator
-#   git:
-#     repo: https://github.com/cwaldbieser/jhub_remote_user_authenticator.git
-#     dest: /opt/jhub_remote_user_authenticator
-
-- name: install jupyter, jupyterhub, and other pip packages (as necessary)
-  pip:
-    name:
-    - notebook
-    - jupyterhub
-    - dockerspawner
-    - oauthenticator
-    state: latest
-    executable: pip3
-  # with_items:
-  #   - notebook
-  #   - jupyterhub
-  #   - dockerspawner
-  #   - oauthenticator
-  #   - /opt/jhub_remote_user_authenticator
-
 ###
-# This is for apache
+# This is for jupyterhub configuration
 ###
-# - name: execute apache specific tasks, varies by distro
-#   include: "{{ ansible_distribution }}-apache.yml"
+- name: FILE; make/verify the jupyterhub install directory {{ jupyterhub_install_dir }}
+  file:
+    path: "{{ jupyterhub_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+  
+- name: TEMPLATE; copy over the jupyterhub config
+  template:
+    src: jupyterhub_config.py.j2
+    dest: "{{ jupyterhub_install_dir }}/jupyterhub_config.py"
+    owner: root
+    group: root
+    mode: 0644
+
+# This block is only if we need to link the system config
+- block:
+  - name: FILE; make/verify the jupyterhub system config directory
+    file:
+      path: "{{ jupyterhub_system_config }}"
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: FILE; link the config file iff the install dir <> system config dir
+    file:
+      src: "{{ jupyterhub_install_dir }}/jupyterhub_config.py"
+      dest: "{{ jupyterhub_system_config }}/jupyterhub_config.py"
+      state: link
+      owner: root
+      group: root
+    when: "'{{ jupyterhub_install_dir }}' != '{{ jupyterhub_system_config }}'"
+  when: not jupyterhub_enable_swarmspawner|bool
+    
+
+# invoke the spawner instructions
+- name: INCLUDE; if swarmspawner
+  include: swarmspawner.yml
+  when: jupyterhub_enable_swarmspawner|bool
+
+- name: INCLUDE; if docker
+  include: dockerspawner.yml
+  when: not jupyterhub_enable_swarmspawner|bool
 
 ###
 # This is to initialize docker
@@ -55,54 +64,3 @@
   community.docker.docker_image:
     name: "{{ jupyterhub_docker_image }}:{{ jupyterhub_docker_tag }}"
     source: pull
-
-- name: DOCKER_NETWORK; create the jupyterhub network if swarmspawner is enabled
-  community.docker.docker_network:
-    name: "{{ jupyterhub_swarmspawner_network }}"
-    driver: overlay
-    attachable: yes
-    ipam_config:
-    - subnet: 172.254.0.0/16
-
-  when: jupyterhub_enable_swarmspawner|bool
-
-###
-# This is for jupyterhub configuration
-###
-- name: make/verify the jupyterhub system config directory
-  file:
-    path: "{{ jupyterhub_system_config }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-    
-- name: copy over the jupyterhub config
-  template:
-    src: jupyterhub_config.py.j2
-    dest: "{{ jupyterhub_system_config }}/jupyterhub_config.py"
-    owner: root
-    group: root
-    mode: 0644
-
-###
-# This is for the jupyterhub systemd service
-###
-- name: install the systemd jupyterhub service
-  template:
-    src: jupyterhub.service.j2
-    dest: /lib/systemd/system/jupyterhub.service
-    owner: root
-    group: root
-    mode: 0644
-
-- name: enable the service
-  systemd:
-    name: jupyterhub
-    enabled: yes
-    state: started
-
-- name: force restart of jupyterhub
-  systemd:
-    name: jupyterhub
-    state: restarted

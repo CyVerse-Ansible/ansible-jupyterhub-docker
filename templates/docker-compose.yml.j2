@@ -1,0 +1,33 @@
+version: "3"
+services:
+  proxy:
+    env_file: {{ jupyterhub_install_dir }}/envfile
+    # currently, it is 4.5
+    image: jupyterhub/configurable-http-proxy:latest
+    networks:
+      - {{ jupyterhub_swarmspawner_network }}
+    # expose the proxy to the worldd
+    ports:
+      - "80:8000"
+    command:
+      - configurable-http-proxy
+      - "--error-target"
+      - "http://hub/hub/error"
+
+  hub:
+    # build an image with SwarmSpawner and our jupyterhub_config.py
+    #env_file: .env
+    #build:
+    #  context: "../.."
+    #  dockerfile: "examples/swarm/Dockerfile"
+    # mount the docker socket
+    env_file: {{ jupyterhub_install_dir }}/envfile
+    image: stack0verflow/jupyterhub:latest
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ jupyterhub_install_dir }}/jupyterhub_config.py:/opt/jupyterhub/jupyterhub_config.py"
+    networks:
+      - {{ jupyterhub_swarmspawner_network }}
+networks:
+  {{ jupyterhub_swarmspawner_network }}:
+    driver: overlay
