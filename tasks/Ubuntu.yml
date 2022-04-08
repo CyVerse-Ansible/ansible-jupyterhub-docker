@@ -5,10 +5,7 @@
 
 - name: Install Ubuntu package dependencies for Ubuntu
   apt:
-    name: "{{ item }}"
-    state: latest
-    update_cache: yes
-  with_items:
+    name:
     - npm
     - nodejs
     - node-gyp
@@ -22,4 +19,7 @@
     # - apache2
     # - apache2-dev
     # - apache2-utils
-    # - libapache2-mod-auth-cas
+    # - libapache2-mod-auth-cas    
+    state: latest
+    update_cache: yes
+

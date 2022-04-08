@@ -27,15 +27,19 @@
 
 - name: install jupyter, jupyterhub, and other pip packages (as necessary)
   pip:
-    name: "{{ item }}"
-    state: latest
-    executable: pip3
-  with_items:
+    name:
     - notebook
     - jupyterhub
     - dockerspawner
     - oauthenticator
-    # - /opt/jhub_remote_user_authenticator
+    state: latest
+    executable: pip3
+  # with_items:
+  #   - notebook
+  #   - jupyterhub
+  #   - dockerspawner
+  #   - oauthenticator
+  #   - /opt/jhub_remote_user_authenticator
 
 ###
 # This is for apache
@@ -56,6 +60,10 @@
   community.docker.docker_network:
     name: "{{ jupyterhub_swarmspawner_network }}"
     driver: overlay
+    attachable: yes
+    ipam_config:
+    - subnet: 172.254.0.0/16
+
   when: jupyterhub_enable_swarmspawner|bool
 
 ###
